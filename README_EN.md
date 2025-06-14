@@ -1,28 +1,26 @@
-# 在 ARM64 设备上为 Brother-HL2260D 打印机添加网络功能
+# Adding Network Functionality to Brother-HL2260D Printer on ARM64 Devices
 
-_To read English Version, Click this：[English](./README_EN.md)_
+## Preface
+On AMD64/x32 devices, this is a straightforward task requiring only official tool installation. However, Brother does not provide official drivers for ARM64 architecture. After failing to build with Docker, I successfully deployed network functionality on an Orange Pi Zero3 by referencing article [^R1].
 
-## 序
-在 AMD64/x32 设备上，这是一个简单的工作，只需要使用官方工具安装即可。在 ARM64 设备上，官方并没有提供驱动程序。在尝试使用 Docker 构建失败后，我参考文章 [^R1] 成功在香橙派 Zero3 上部署了网络功能。
+## Download Files
 
-## 下载文件
+Download the following files from [Brother Driver Download Page](https://support.brother.com/g/b/downloadlist.aspx?c=cn&lang=zh&prod=hl2260d_cn&os=128).
 
-在 [Brother 驱动下载页面](https://support.brother.com/g/b/downloadlist.aspx?c=cn&lang=zh&prod=hl2260d_cn&os=128) 中下载相关文件。
+### File List  
 
-### 文件列表
-
-| 文件名 | 注释 |
+| Filename | Comment |
 |--------|------|
-| **原始文件** | |
-| `hl2260dcupswrapper-3.2.0-1.i386.deb` | CUPS 驱动 |
-| `hl2260dlpr-3.2.0-1.i386.deb` | LPR 驱动 |
-| **兼容文件** | |
-| `brgenprintml2pdrv-4.0.0-1.armhf.deb` | Brother ARM 通用驱动文件 |
-| `brhl2270dwcups_src-2.0.4-2.tar.gz` | brcupsconfig4 源码 |
+| **Original Files** | |
+| `hl2260dcupswrapper-3.2.0-1.i386.deb` | CUPS Driver |
+| `hl2260dlpr-3.2.0-1.i386.deb` | LPR Driver |
+| **Compatible Files** | |
+| `brgenprintml2pdrv-4.0.0-1.armhf.deb` | Brother ARM Universal Driver |
+| `brhl2270dwcups_src-2.0.4-2.tar.gz` | brcupsconfig4 Source Code |
 
-## 构建镜像
+## Building Image
 
-### 解压并修改 LPR 驱动
+### Extract and Modify LPR Driver
 
 ```bash
 dpkg -x hl2260dlpr-3.2.0-1.i386.deb hl2260dlpr-3.2.0-1.armhf.ext
@@ -32,9 +30,9 @@ echo true > hl2260dlpr-3.2.0-1.armhf.ext/opt/brother/Printers/HL2260D/inf/braddp
 ```
 
 > [!TIP]  
-> 原文提到的路径 `/usr/local/Brother/Printer/HL2260D/inf/braddprinter` 实际应为 `/opt/brother/Printers/HL2260D/inf/braddprinter`
+> The original article mentions path `/usr/local/Brother/Printer/HL2260D/inf/braddprinter`, which should actually be `/opt/brother/Printers/HL2260D/inf/braddprinter`
 
-### 复制 ARM 通用驱动
+### Copy ARM Universal Driver
 
 ```bash
 dpkg -x brgenprintml2pdrv-4.0.0-1.armhf.deb brgenprintml2pdrv-4.0.0-1.armhf.ext
@@ -42,7 +40,7 @@ cp brgenprintml2pdrv-4.0.0-1.armhf.ext/opt/brother/Printers/BrGenPrintML2/lpd/ar
    hl2260dlpr-3.2.0-1.armhf.ext/opt/brother/Printers/HL2260D/lpd
 ```
 
-### 重新打包 LPR 驱动
+### Repackage LPR Driver
 
 ```bash
 cd hl2260dlpr-3.2.0-1.armhf.ext
@@ -54,7 +52,7 @@ chmod 755 hl2260dlpr-3.2.0-1.armhf.ext/DEBIAN/p* \
 dpkg-deb -b hl2260dlpr-3.2.0-1.armhf.ext hl2260dlpr-3.2.0-1.armhf.deb
 ```
 
-### 编译 brcupsconfig4
+### Compile brcupsconfig4
 
 ```bash
 sudo apt install gcc-9-arm-linux-gnueabihf libc6-dev-armhf-cross -y
@@ -63,7 +61,7 @@ cd brhl2270dwcups_src-2.0.4-2
 arm-linux-gnueabihf-gcc-9 brcupsconfig3/brcupsconfig.c -o brcupsconfig4
 ```
 
-### 构建 Cupswrapper
+### Build Cupswrapper
 
 ```bash
 dpkg -x hl2260dcupswrapper-3.2.0-1.i386.deb hl2260dcupswrapper-3.2.0-1.armhf.ext
@@ -80,7 +78,7 @@ chmod 755 hl2260dcupswrapper-3.2.0-1.armhf.ext/DEBIAN/p* \
 dpkg-deb -b hl2260dcupswrapper-3.2.0-1.armhf.ext chl2260dcupswrapper-3.2.0-1.armhf.deb
 ```
 
-## 安装
+## Installation
 
 ```bash
 sudo dpkg --add-architecture armhf
@@ -91,13 +89,12 @@ sudo dpkg -i chl2260dcupswrapper-3.2.0-1.armhf.deb hl2260dlpr-3.2.0-1.armhf.deb
 ```
 
 > [!WARNING]  
-> 当前已知问题：  
-> - CUPS Panel 无法打印测试页，但使用 `lp -d Brother_HL-2260D /usr/share/cups/data/testprint` 命令可以打印  
-> - 无法确定手机是否可以打印，但是 Windows 安装驱动后可以正常连接打印机并且打印内容
+> Known issues:  
+> - CUPS Panel cannot print test page, but printing via command `lp -d Brother_HL-2260D /usr/share/cups/data/testprint` works  
+> - Mobile device compatibility unknown, though Windows can connect and print after driver installation
 
 > [!TIP]  
-> 如果你是 Ubuntu 用户，建议卸载 AppArmor，或者配置文件放行。懒得折腾就直接卸了吧，反正我不用 snap  
-> 最后，删除所有临时文件，使用浏览器打开 [https://你的IP:631](https://你的IP:631)，按照提示添加打印机。祝顺利！本文用时 2 周
+> Ubuntu users are advised to remove AppArmor or configure policies accordingly. Just remove it if you hate hassle (I don't use snap anyway)  
+> Finally, delete all temporary files and open [https://your_ip:631](https://your_ip:631) in browser to add printer following instructions. Good luck! This guide took 2 weeks
 
-[^R1]: [@alexivkin Brother printer drivers for Raspberry Pi and other ARM devices](https://github.com/alexivkin/brother-in-arms)
-```
+[^R1]: [@alexivkin Brother printer drivers for Raspberry Pi and other ARM devices](https://github.com/alexivkin/brother-in-arms)  
