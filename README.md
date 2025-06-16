@@ -3,7 +3,30 @@
 _To read English Version, Click this：[English](./README_EN.md)_
 
 ## 序
-在 AMD64/x32 设备上，这是一个简单的工作，只需要使用官方工具安装即可。在 ARM64 设备上，官方并没有提供驱动程序。在尝试使用 Docker 构建失败后，我参考文章 [^R1] 成功在香橙派 Zero3 上部署了网络功能。
+在 AMD64/x32 设备上，这是一个简单的工作，只需要使用官方工具安装即可。在 ARM64 设备上，官方并没有提供驱动程序。在尝试使用 Docker 构建失败后，我参考文章 [1] 成功在香橙派 Zero3 上部署了网络功能。
+
+如果你不想要自行编译 deb 包，可以直接从 Release 下载，见 _使用_ 章节
+
+## 使用
+
+- 下载编译好的 deb 包
+```bash
+wget https://github.com/KirsminX/brother-hl2260d-on-arm/releases/download/0.0.1/chl2260dcupswrapper-3.2.0-1.armhf.deb
+wget https://github.com/KirsminX/brother-hl2260d-on-arm/releases/download/0.0.1/hl2260dlpr-3.2.0-1.armhf.deb
+```
+- 安装依赖
+```bash
+sudo apt update
+sudo apt install psutils cups libc6 libstdc++6 libusb-1.0-0 gsfonts ghostscript -y
+```
+- 安装驱动
+```bash
+sudo dpkg -i 
+chl2260dcupswrapper-3.2.0-1.armhf.deb 
+hl2260dlpr-3.2.0-1.armhf.deb 
+sudo systemctl restart cups
+```
+- 访问 https://<IP>:631/admin，删除自动添加的打印机，重新手动添加
 
 ## 下载文件
 
@@ -92,12 +115,11 @@ sudo dpkg -i chl2260dcupswrapper-3.2.0-1.armhf.deb hl2260dlpr-3.2.0-1.armhf.deb
 
 > [!WARNING]  
 > 当前已知问题：  
-> - CUPS Panel 无法打印测试页，但使用 `lp -d Brother_HL-2260D /usr/share/cups/data/testprint` 命令可以打印  
-> - 无法确定手机是否可以打印，但是 Windows 安装驱动后可以正常连接打印机并且打印内容
+> - 自动添加的打印机无法使用，请访问 https://<ip>:631/admin 删除原有打印机、重新添加。
 
 > [!TIP]  
 > 如果你是 Ubuntu 用户，建议卸载 AppArmor，或者配置文件放行。懒得折腾就直接卸了吧，反正我不用 snap  
 > 最后，删除所有临时文件，使用浏览器打开 [https://你的IP:631](https://你的IP:631)，按照提示添加打印机。祝顺利！本文用时 2 周
 
-[^R1]: [@alexivkin Brother printer drivers for Raspberry Pi and other ARM devices](https://github.com/alexivkin/brother-in-arms)
+[1]: [@alexivkin Brother printer drivers for Raspberry Pi and other ARM devices](https://github.com/alexivkin/brother-in-arms)
 ```

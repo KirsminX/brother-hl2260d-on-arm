@@ -1,7 +1,36 @@
 # Adding Network Functionality to Brother-HL2260D Printer on ARM64 Devices
 
 ## Preface
-On AMD64/x32 devices, this is a straightforward task requiring only official tool installation. However, Brother does not provide official drivers for ARM64 architecture. After failing to build with Docker, I successfully deployed network functionality on an Orange Pi Zero3 by referencing article [^R1].
+On AMD64/x32 devices, this is a straightforward task requiring only official tool installation. However, Brother does not provide official drivers for ARM64 architecture. After failing to build with Docker, I successfully deployed network functionality on an Orange Pi Zero3 by referencing article [1].
+
+If you don't want to compile the `.deb` packages yourself, you can directly download them from the Releases section.
+
+## Usage
+
+Install Pre-Built Deb Packages
+```bash
+wget https://github.com/KirsminX/brother-hl2260d-on-arm/releases/download/0.0.1/chl2260dcupswrapper-3.2.0-1.armhf.deb
+wget https://github.com/KirsminX/brother-hl2260d-on-arm/releases/download/0.0.1/hl2260dlpr-3.2.0-1.armhf.deb
+```
+Install Dependencies
+
+```bash
+sudo apt update
+sudo apt install psutils cups libc6 libstdc++6 libusb-1.0-0 gsfonts ghostscript -y
+```
+
+Install the Driver
+
+```bash
+sudo dpkg -i chl2260dcupswrapper-3.2.0-1.armhf.deb hl2260dlpr-3.2.0-1.armhf.deb
+sudo systemctl restart cups
+```
+
+Add the Printer
+
+- Open your browser and go to: `https://<your-ip>:631/admin`
+- Remove any automatically added printers
+- Manually add your Brother HL-2260D printer using the CUPS interface
 
 ## Download Files
 
@@ -88,13 +117,8 @@ sudo apt install psutils cups
 sudo dpkg -i chl2260dcupswrapper-3.2.0-1.armhf.deb hl2260dlpr-3.2.0-1.armhf.deb
 ```
 
-> [!WARNING]  
-> Known issues:  
-> - CUPS Panel cannot print test page, but printing via command `lp -d Brother_HL-2260D /usr/share/cups/data/testprint` works  
-> - Mobile device compatibility unknown, though Windows can connect and print after driver installation
-
 > [!TIP]  
 > Ubuntu users are advised to remove AppArmor or configure policies accordingly. Just remove it if you hate hassle (I don't use snap anyway)  
 > Finally, delete all temporary files and open [https://your_ip:631](https://your_ip:631) in browser to add printer following instructions. Good luck! This guide took 2 weeks
 
-[^R1]: [@alexivkin Brother printer drivers for Raspberry Pi and other ARM devices](https://github.com/alexivkin/brother-in-arms)  
+[1]: [@alexivkin Brother printer drivers for Raspberry Pi and other ARM devices](https://github.com/alexivkin/brother-in-arms)  
