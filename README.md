@@ -122,4 +122,3 @@ sudo dpkg -i chl2260dcupswrapper-3.2.0-1.armhf.deb hl2260dlpr-3.2.0-1.armhf.deb
 > 最后，删除所有临时文件，使用浏览器打开 [https://你的IP:631](https://你的IP:631)，按照提示添加打印机。祝顺利！本文用时 2 周
 
 [1]: [@alexivkin Brother printer drivers for Raspberry Pi and other ARM devices](https://github.com/alexivkin/brother-in-arms)
-```
