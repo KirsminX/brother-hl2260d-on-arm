@@ -1,5 +1,3 @@
-Reply contains only the translated content. Keep the original format, translate to English
-
 # Add Network Functionality for Brother-HL2260D Printer on ARM64 Devices
 
 _To read Chinese Version, Click this: [Chinese](./README.md)_
